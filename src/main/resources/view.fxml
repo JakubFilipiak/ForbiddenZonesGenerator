@@ -1,0 +1,209 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.ChoiceBox?>
+<?import javafx.scene.control.ComboBox?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.control.Menu?>
+<?import javafx.scene.control.MenuBar?>
+<?import javafx.scene.control.MenuItem?>
+<?import javafx.scene.control.Separator?>
+<?import javafx.scene.control.TextArea?>
+<?import javafx.scene.control.TextField?>
+<?import javafx.scene.layout.BorderPane?>
+<?import javafx.scene.layout.HBox?>
+<?import javafx.scene.layout.VBox?>
+
+
+<BorderPane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="400.0" prefWidth="600.0" xmlns="http://javafx.com/javafx/8.0.171" xmlns:fx="http://javafx.com/fxml/1">
+   <top>
+      <MenuBar BorderPane.alignment="CENTER">
+        <menus>
+          <Menu mnemonicParsing="false" text="File">
+            <items>
+              <MenuItem mnemonicParsing="false" text="Close" />
+            </items>
+          </Menu>
+          <Menu mnemonicParsing="false" text="Edit">
+            <items>
+              <MenuItem mnemonicParsing="false" text="Delete" />
+            </items>
+          </Menu>
+          <Menu mnemonicParsing="false" text="Help">
+            <items>
+              <MenuItem mnemonicParsing="false" text="About" />
+            </items>
+          </Menu>
+        </menus>
+      </MenuBar>
+   </top>
+   <center>
+      <HBox prefHeight="100.0" prefWidth="600.0" BorderPane.alignment="CENTER">
+         <children>
+            <VBox alignment="TOP_CENTER" prefHeight="375.0" prefWidth="264.0">
+               <children>
+                  <Label text="Konfiguracja mapy" />
+                  <Separator prefHeight="11.0" prefWidth="264.0" />
+                  <HBox alignment="CENTER" prefHeight="30.0" prefWidth="208.0">
+                     <children>
+                        <TextField editable="false" focusTraversable="false" promptText="nazwaPliku.png">
+                           <HBox.margin>
+                              <Insets right="5.0" />
+                           </HBox.margin>
+                        </TextField>
+                        <Button mnemonicParsing="false" text="Wybierz plik">
+                           <HBox.margin>
+                              <Insets left="5.0" />
+                           </HBox.margin>
+                        </Button>
+                     </children>
+                  </HBox>
+                  <Label text="Współrzędne lewego-dolnego rogu:">
+                     <VBox.margin>
+                        <Insets top="5.0" />
+                     </VBox.margin>
+                  </Label>
+                  <HBox alignment="CENTER" prefHeight="30.0" prefWidth="200.0">
+                     <children>
+                        <Label text="N:" />
+                        <TextField prefHeight="25.0" prefWidth="100.0" promptText="49.656450">
+                           <HBox.margin>
+                              <Insets right="5.0" />
+                           </HBox.margin>
+                        </TextField>
+                        <Label text="E:">
+                           <HBox.margin>
+                              <Insets left="5.0" />
+                           </HBox.margin>
+                        </Label>
+                        <TextField prefHeight="25.0" prefWidth="100.0" promptText="20.834433" />
+                     </children>
+                     <VBox.margin>
+                        <Insets />
+                     </VBox.margin>
+                  </HBox>
+                  <Label text="Współrzędne prawego-górnego rogu:">
+                     <VBox.margin>
+                        <Insets top="5.0" />
+                     </VBox.margin>
+                  </Label>
+                  <HBox alignment="CENTER" prefHeight="30.0" prefWidth="200.0">
+                     <children>
+                        <Label text="N:" />
+                        <TextField prefHeight="25.0" prefWidth="100.0" promptText="52.503133">
+                           <HBox.margin>
+                              <Insets right="5.0" />
+                           </HBox.margin>
+                        </TextField>
+                        <Label text="E:">
+                           <HBox.margin>
+                              <Insets left="5.0" />
+                           </HBox.margin>
+                        </Label>
+                        <TextField prefHeight="25.0" prefWidth="100.0" promptText="24.397150" />
+                     </children>
+                  </HBox>
+                  <Button mnemonicParsing="false" text="Sprawdź poprawność konfiguracji">
+                     <VBox.margin>
+                        <Insets bottom="5.0" top="5.0" />
+                     </VBox.margin>
+                  </Button>
+               </children>
+            </VBox>
+            <Separator orientation="VERTICAL" prefHeight="200.0" />
+            <VBox alignment="TOP_CENTER" prefHeight="375.0" prefWidth="150.0">
+               <children>
+                  <Label text="Poprawność mapy" />
+                  <Separator prefHeight="11.0" prefWidth="200.0" />
+                  <Label text="Kolory:" />
+                  <Label text="Obszary dozwolone: ---" />
+                  <Label text="Obszary zabronione: ---" />
+                  <Label text="Współrzędne:">
+                     <VBox.margin>
+                        <Insets top="10.0" />
+                     </VBox.margin>
+                  </Label>
+                  <Label text="---" />
+                  <Button disable="true" mnemonicParsing="false" prefWidth="150.0" text="Zapisz konfigurację do bazy danych" textAlignment="CENTER" wrapText="true">
+                     <VBox.margin>
+                        <Insets top="5.0" />
+                     </VBox.margin>
+                  </Button>
+               </children>
+            </VBox>
+            <Separator orientation="VERTICAL" prefHeight="200.0" />
+            <VBox alignment="TOP_CENTER" prefHeight="199.0" prefWidth="174.0">
+               <children>
+                  <Label text="Wczytaj konfigurację" />
+                  <Separator prefHeight="11.0" prefWidth="200.0" />
+                  <ComboBox prefHeight="25.0" prefWidth="165.0" promptText="---" />
+                  <Button mnemonicParsing="false" text="Wczytaj">
+                     <VBox.margin>
+                        <Insets top="5.0" />
+                     </VBox.margin>
+                  </Button>
+               </children>
+            </VBox>
+         </children>
+      </HBox>
+   </center>
+   <bottom>
+      <VBox prefHeight="176.0" prefWidth="600.0" BorderPane.alignment="CENTER">
+         <children>
+            <Separator prefHeight="11.0" prefWidth="200.0" />
+            <HBox alignment="CENTER_LEFT" prefHeight="30.0" prefWidth="600.0">
+               <children>
+                  <Label text="Plik trasy:">
+                     <HBox.margin>
+                        <Insets right="5.0" />
+                     </HBox.margin>
+                  </Label>
+                  <TextField editable="false" focusTraversable="false" promptText="nazwaPliku.trk">
+                     <HBox.margin>
+                        <Insets left="5.0" right="5.0" />
+                     </HBox.margin>
+                  </TextField>
+                  <Button disable="true" mnemonicParsing="false" text="Wybierz plik">
+                     <HBox.margin>
+                        <Insets left="5.0" />
+                     </HBox.margin>
+                  </Button>
+               </children>
+               <VBox.margin>
+                  <Insets left="10.0" />
+               </VBox.margin>
+            </HBox>
+            <Separator prefHeight="11.0" prefWidth="200.0" />
+            <HBox alignment="CENTER_LEFT" prefHeight="30.0" prefWidth="200.0">
+               <VBox.margin>
+                  <Insets left="10.0" />
+               </VBox.margin>
+               <children>
+                  <Label text="Bufor czasowy [s]:">
+                     <HBox.margin>
+                        <Insets right="5.0" />
+                     </HBox.margin>
+                  </Label>
+                  <ChoiceBox prefWidth="50.0">
+                     <HBox.margin>
+                        <Insets left="5.0" />
+                     </HBox.margin>
+                  </ChoiceBox>
+                  <Button disable="true" mnemonicParsing="false" text="Wygeneruj zestaw stref zakazanych">
+                     <HBox.margin>
+                        <Insets left="225.0" />
+                     </HBox.margin>
+                  </Button>
+               </children>
+            </HBox>
+            <Separator prefHeight="11.0" prefWidth="200.0" />
+            <TextArea editable="false" focusTraversable="false" prefHeight="84.0" prefWidth="600.0" promptText="Informacje dotyczące działania aplikacji..." wrapText="true">
+               <VBox.margin>
+                  <Insets bottom="5.0" left="5.0" right="5.0" />
+               </VBox.margin>
+            </TextArea>
+         </children>
+      </VBox>
+   </bottom>
+</BorderPane>
