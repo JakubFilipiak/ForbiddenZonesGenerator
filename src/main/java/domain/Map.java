@@ -1,63 +1,47 @@
 package domain;
 
+import lombok.Getter;
+import lombok.Setter;
+
 import java.awt.*;
+import java.io.File;
 
 /**
  * Created by Jakub Filipiak on 27.02.2019.
  */
-public class Map {
+public enum Map {
 
-//    Color colorGreen = new Color(0, 130, 0);
-    Color colorGreen = new Color(25, 144, 25);
-    Color colorBlack = new Color(0, 0, 0);
+    INSTANCE;
 
-//    private float bottomLeftCornerLatitude = 50.636667f;
-//    private float bottomLeftCornerLongitude = 21.850556f;
+    @Getter @Setter
+    private File mapFile = new File("D:/ForbiddenZonesGenerator " +
+            "resources/maps/LublinBig2.png");
 
-//    private float bottomLeftCornerLatitude = 49.656688f;
-//    private float bottomLeftCornerLongitude = 20.834437f;
+    private Color defaultAllowedColor = new Color(25, 144, 25);;
+    private Color defaultForbiddenColor = new Color(0, 0, 0);
 
+    @Getter
+    private Color allowedColor = defaultAllowedColor;
+    @Getter
+    private Color forbiddenColor = defaultForbiddenColor;
+
+    @Setter
     private float bottomLeftCornerLatitude = 49.656450f;
+    @Setter
     private float bottomLeftCornerLongitude = 20.834433f;
 
-
-
-//    private float upperRightCornerLatitude = 51.926944f;
-//    private float upperRightCornerLongitude = 23.907222f;
-
-//    private float upperRightCornerLatitude = 52.503125f;
-//    private float upperRightCornerLongitude = 24.396766f;
-
+    @Setter
     private float upperRightCornerLatitude = 52.503133f;
+    @Setter
     private float upperRightCornerLongitude = 24.397150f;
 
+    @Getter
+    private float relativeLongitudeZero = bottomLeftCornerLongitude;
+    @Getter
+    private float relativeLatitudeZero = upperRightCornerLatitude;
 
-
-
+    @Getter
     private float longitudeResolution = upperRightCornerLongitude - bottomLeftCornerLongitude;
+    @Getter
     private float latitudeResolution = upperRightCornerLatitude - bottomLeftCornerLatitude;
-
-    public Color getColorGreen() {
-        return colorGreen;
-    }
-
-    public Color getColorBlack() {
-        return colorBlack;
-    }
-
-    public float getUpperRightCornerLatitude() {
-        return upperRightCornerLatitude;
-    }
-
-    public float getBottomLeftCornerLongitude() {
-        return bottomLeftCornerLongitude;
-    }
-
-    public float getLongitudeResolution() {
-        return longitudeResolution;
-    }
-
-    public float getLatitudeResolution() {
-        return latitudeResolution;
-    }
 }

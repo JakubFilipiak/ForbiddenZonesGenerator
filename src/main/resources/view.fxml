@@ -15,8 +15,7 @@
 <?import javafx.scene.layout.HBox?>
 <?import javafx.scene.layout.VBox?>
 
-
-<BorderPane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="400.0" prefWidth="600.0" xmlns="http://javafx.com/javafx/8.0.171" xmlns:fx="http://javafx.com/fxml/1">
+<BorderPane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="400.0" prefWidth="600.0" xmlns="http://javafx.com/javafx/8.0.171" xmlns:fx="http://javafx.com/fxml/1" fx:controller="controller.Controller">
    <top>
       <MenuBar BorderPane.alignment="CENTER">
         <menus>
@@ -47,12 +46,12 @@
                   <Separator prefHeight="11.0" prefWidth="264.0" />
                   <HBox alignment="CENTER" prefHeight="30.0" prefWidth="208.0">
                      <children>
-                        <TextField editable="false" focusTraversable="false" promptText="nazwaPliku.png">
+                        <TextField fx:id="mapFileNameTextField" editable="false" focusTraversable="false" promptText="nazwaPliku.png">
                            <HBox.margin>
                               <Insets right="5.0" />
                            </HBox.margin>
                         </TextField>
-                        <Button mnemonicParsing="false" text="Wybierz plik">
+                        <Button mnemonicParsing="false" onAction="#chooseMapFile" text="Wybierz plik">
                            <HBox.margin>
                               <Insets left="5.0" />
                            </HBox.margin>
@@ -67,7 +66,7 @@
                   <HBox alignment="CENTER" prefHeight="30.0" prefWidth="200.0">
                      <children>
                         <Label text="N:" />
-                        <TextField prefHeight="25.0" prefWidth="100.0" promptText="49.656450">
+                        <TextField fx:id="bottomLeftCornerLatitudeTextField" prefHeight="25.0" prefWidth="100.0" promptText="49.656450">
                            <HBox.margin>
                               <Insets right="5.0" />
                            </HBox.margin>
@@ -77,7 +76,7 @@
                               <Insets left="5.0" />
                            </HBox.margin>
                         </Label>
-                        <TextField prefHeight="25.0" prefWidth="100.0" promptText="20.834433" />
+                        <TextField fx:id="bottomLeftCornerLongitudeTextField" prefHeight="25.0" prefWidth="100.0" promptText="20.834433" />
                      </children>
                      <VBox.margin>
                         <Insets />
@@ -91,7 +90,7 @@
                   <HBox alignment="CENTER" prefHeight="30.0" prefWidth="200.0">
                      <children>
                         <Label text="N:" />
-                        <TextField prefHeight="25.0" prefWidth="100.0" promptText="52.503133">
+                        <TextField fx:id="upperRightCornerLatitudeTextField" prefHeight="25.0" prefWidth="100.0" promptText="52.503133">
                            <HBox.margin>
                               <Insets right="5.0" />
                            </HBox.margin>
@@ -101,10 +100,10 @@
                               <Insets left="5.0" />
                            </HBox.margin>
                         </Label>
-                        <TextField prefHeight="25.0" prefWidth="100.0" promptText="24.397150" />
+                        <TextField fx:id="upperRightCornerLongitudeTextField" prefHeight="25.0" prefWidth="100.0" promptText="24.397150" />
                      </children>
                   </HBox>
-                  <Button mnemonicParsing="false" text="Sprawdź poprawność konfiguracji">
+                  <Button fx:id="checkConfigurationCorrectnessButton" disable="true" mnemonicParsing="false" onAction="#checkConfigurationCorrectness" text="Sprawdź poprawność konfiguracji">
                      <VBox.margin>
                         <Insets bottom="5.0" top="5.0" />
                      </VBox.margin>
@@ -117,8 +116,8 @@
                   <Label text="Poprawność mapy" />
                   <Separator prefHeight="11.0" prefWidth="200.0" />
                   <Label text="Kolory:" />
-                  <Label text="Obszary dozwolone: ---" />
-                  <Label text="Obszary zabronione: ---" />
+                  <Label fx:id="correctnessOfAllowedColors" text="Obszary dozwolone: ---" />
+                  <Label fx:id="correctnessOfForbiddenColors" text="Obszary zabronione: ---" />
                   <Label text="Współrzędne:">
                      <VBox.margin>
                         <Insets top="10.0" />
@@ -149,7 +148,7 @@
       </HBox>
    </center>
    <bottom>
-      <VBox prefHeight="176.0" prefWidth="600.0" BorderPane.alignment="CENTER">
+      <VBox prefHeight="165.0" prefWidth="600.0" BorderPane.alignment="CENTER">
          <children>
             <Separator prefHeight="11.0" prefWidth="200.0" />
             <HBox alignment="CENTER_LEFT" prefHeight="30.0" prefWidth="600.0">
@@ -159,12 +158,12 @@
                         <Insets right="5.0" />
                      </HBox.margin>
                   </Label>
-                  <TextField editable="false" focusTraversable="false" promptText="nazwaPliku.trk">
+                  <TextField fx:id="trackFileNameTextField" editable="false" focusTraversable="false" promptText="nazwaPliku.trk">
                      <HBox.margin>
                         <Insets left="5.0" right="5.0" />
                      </HBox.margin>
                   </TextField>
-                  <Button disable="true" mnemonicParsing="false" text="Wybierz plik">
+                  <Button fx:id="chooseTrackFileButton" disable="true" mnemonicParsing="false" onAction="#chooseTrackFile" text="Wybierz plik">
                      <HBox.margin>
                         <Insets left="5.0" />
                      </HBox.margin>
@@ -190,7 +189,7 @@
                         <Insets left="5.0" />
                      </HBox.margin>
                   </ChoiceBox>
-                  <Button disable="true" mnemonicParsing="false" text="Wygeneruj zestaw stref zakazanych">
+                  <Button fx:id="generateForbiddenZonesButton" disable="true" mnemonicParsing="false" onAction="#generateForbiddenZones" text="Wygeneruj zestaw stref zakazanych">
                      <HBox.margin>
                         <Insets left="225.0" />
                      </HBox.margin>
@@ -198,7 +197,7 @@
                </children>
             </HBox>
             <Separator prefHeight="11.0" prefWidth="200.0" />
-            <TextArea editable="false" focusTraversable="false" prefHeight="84.0" prefWidth="600.0" promptText="Informacje dotyczące działania aplikacji..." wrapText="true">
+            <TextArea fx:id="logTextArea" editable="false" focusTraversable="false" prefHeight="74.0" prefWidth="590.0" text="Wybierz plik mapy lub wczytaj zapisaną konfigurację..." wrapText="true">
                <VBox.margin>
                   <Insets bottom="5.0" left="5.0" right="5.0" />
                </VBox.margin>

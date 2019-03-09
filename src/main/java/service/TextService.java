@@ -1,6 +1,7 @@
 package service;
 
 import domain.ForbiddenZone;
+import domain.Text;
 
 import java.io.FileWriter;
 import java.io.IOException;
@@ -8,18 +9,20 @@ import java.io.IOException;
 /**
  * Created by Jakub Filipiak on 27.02.2019.
  */
-public class TXTService {
+public enum TextService {
 
-    FileWriter fileWriter = null;
+    INSTANCE;
+
+    private Text text = Text.INSTANCE;
+
+    private FileWriter fileWriter = null;
 
     public void initializeFileWriter() throws IOException {
-        fileWriter = new FileWriter("D:/ForbiddenZonesGenerator " +
-                "resources/ForbiddenZonesBig2.txt");
+        fileWriter = new FileWriter(text.getTextFile());
     }
 
     public void write(ForbiddenZone forbiddenZone) throws IOException {
         fileWriter.write(forbiddenZone.getEntranceTime() + " " + forbiddenZone.getDepartureTime());
-        //fileWriter.write('\n');
         fileWriter.write(System.getProperty("line.separator"));
     }
 

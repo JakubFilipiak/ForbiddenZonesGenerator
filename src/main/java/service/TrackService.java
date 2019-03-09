@@ -2,6 +2,7 @@ package service;
 
 import domain.ForbiddenZone;
 import domain.PointOfTrack;
+import domain.Track;
 
 import java.io.*;
 import java.time.LocalTime;
@@ -9,13 +10,13 @@ import java.time.LocalTime;
 /**
  * Created by Jakub Filipiak on 25.02.2019.
  */
-public class TRKService {
+public enum TrackService {
 
-    //File trkFile = new File("D:/ForbiddenZonesGenerator resources/LU-53-SP-ABM.trk");
-    File trkFile = new File("D:/ForbiddenZonesGenerator resources/LU-53-SP-ABM.trk");
+    INSTANCE;
 
-    MapService mapService = new MapService();
-    TXTService txtService = new TXTService();
+    Track track = Track.INSTANCE;
+    MapService mapService = MapService.INSTANCE;
+    TextService textService = TextService.INSTANCE;
 
     LocalTime tmpEntranceTime;
     LocalTime tmpDepartureTime;
@@ -25,22 +26,17 @@ public class TRKService {
     boolean forbiddenZoneCreated = false;
     LocalTime time;
 
-    public TRKService() throws IOException {
-    }
-
     public void processFile() throws IOException {
 
-        mapService.checkMapCorrectness();
-
         InputStream bufferedInputStream =
-                new BufferedInputStream(new FileInputStream(trkFile));
+                new BufferedInputStream(new FileInputStream(track.getTrackFile()));
         BufferedReader bufferedReader =
                 new BufferedReader(new InputStreamReader(bufferedInputStream));
 
         String line;
 
 
-        txtService.initializeFileWriter();
+        textService.initializeFileWriter();
 
         for (int i = 1; i < 1000; i ++) {
             while ((line = bufferedReader.readLine()) != null && line.startsWith(
@@ -79,7 +75,7 @@ public class TRKService {
                 createForbiddenZoneBeta();
             }
         }
-        txtService.closeFileWriter();
+        textService.closeFileWriter();
     }
 
     private void createForbiddenZoneBeta() throws IOException {
@@ -98,13 +94,13 @@ public class TRKService {
         } else {
             if (numberOfForbiddenPoints == 1) {
                 forbiddenZone.setDepartureTime(forbiddenZone.getEntranceTime().plusSeconds(6));
-                txtService.write(forbiddenZone);
+                textService.write(forbiddenZone);
                 System.out.println("Forbidden point written: " + forbiddenZone.toString());
                 forbiddenZoneCreated = false;
                 numberOfForbiddenPoints = 0;
             } else if (numberOfForbiddenPoints > 1) {
                 forbiddenZone.setDepartureTime(forbiddenZone.getDepartureTime().plusSeconds(3));
-                txtService.write(forbiddenZone);
+                textService.write(forbiddenZone);
                 System.out.println("Forbidden point written: " + forbiddenZone.toString());
                 forbiddenZoneCreated = false;
                 numberOfForbiddenPoints = 0;
