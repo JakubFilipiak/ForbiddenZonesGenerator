@@ -1,5 +1,8 @@
 package domain;
 
+import lombok.Getter;
+import lombok.Setter;
+
 import java.time.LocalTime;
 
 /**
@@ -7,7 +10,9 @@ import java.time.LocalTime;
  */
 public class ForbiddenZone {
 
+    @Getter
     LocalTime entranceTime;
+    @Getter @Setter
     LocalTime departureTime;
 
     private ForbiddenZone() {}
@@ -25,17 +30,6 @@ public class ForbiddenZone {
         this.entranceTime = entranceTime;
     }
 
-    public LocalTime getEntranceTime() {
-        return entranceTime;
-    }
-
-    public void setDepartureTime(LocalTime departureTime) {
-        this.departureTime = departureTime;
-    }
-
-    public LocalTime getDepartureTime() {
-        return departureTime;
-    }
 
     @Override
     public String toString() {

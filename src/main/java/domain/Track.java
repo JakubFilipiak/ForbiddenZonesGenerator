@@ -13,6 +13,7 @@ public enum Track {
     INSTANCE;
 
     @Getter @Setter
-    File trackFile = new File("D:/ForbiddenZonesGenerator resources/LU-53-SP-ABM" +
-            ".trk");
+    File trackFile;
+//    File trackFile = new File("D:/ForbiddenZonesGenerator resources/LU-53-SP-ABM" +
+//            ".trk");
 }

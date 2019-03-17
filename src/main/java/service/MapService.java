@@ -1,7 +1,9 @@
 package service;
 
+import domain.ForbiddenAnglePoint;
 import domain.Map;
 import domain.PointOfTrack;
+import domain.Properties;
 
 import javax.imageio.ImageIO;
 import java.awt.*;
@@ -19,14 +21,22 @@ public enum MapService {
     INSTANCE;
 
     private Map map = Map.INSTANCE;
-    float relativeLongitudeZero = map.getRelativeLongitudeZero();
-    float relativeLatitudeZero = map.getRelativeLatitudeZero();
+    private Properties properties = Properties.INSTANCE;
+
+
 
     private BufferedImage mapImage;
 
+    private PointOfTrack pointOne = null;
+    private PointOfTrack pointTwo = null;
+    private PointOfTrack pointThree = null;
+
+    private double angle;
+
+
     {
         try {
-            mapImage = ImageIO.read(map.getMapFile());
+            mapImage = ImageIO.read(map.getMapFileInputStream());
         } catch (IOException e) {
             e.printStackTrace();
         }
@@ -62,6 +72,9 @@ public enum MapService {
 
     public LocalTime analyzePoint(PointOfTrack pointOfTrack) {
 
+        float relativeLongitudeZero = map.getRelativeLongitudeZero();
+        float relativeLatitudeZero = map.getRelativeLatitudeZero();
+
         float relativeX = pointOfTrack.getLongitude() - relativeLongitudeZero;
         System.out.println(relativeX);
 
@@ -77,12 +90,55 @@ public enum MapService {
 
         Color pixelColor = new Color(mapImage.getRGB((int)pixelX, (int)pixelY));
 
-        if (pixelColor.getRGB() == map.getForbiddenColor().getRGB()) {
+        if (pixelColor.getRGB() != map.getAllowedColor().getRGB()) {
             System.out.println(pointOfTrack.getTime());
             return pointOfTrack.getTime();
         } else {
             System.out.println("...");
             return null;
         }
+    }
+
+    public ForbiddenAnglePoint analyzeAngle(PointOfTrack newPointOfTrack) {
+
+        int minimumAngle = properties.getMinimumAngle();
+
+        pointOne = pointTwo;
+        pointTwo = pointThree;
+        pointThree = newPointOfTrack;
+
+        if (pointOne != null) {
+            angle = calculateAngle(pointOne, pointTwo, pointThree);
+            if (angle > minimumAngle) {
+                System.out.println("Angle: " + angle);
+                System.out.println("Time: " + pointTwo.getTime());
+                ForbiddenAnglePoint forbiddenAnglePoint =
+                        new ForbiddenAnglePoint(pointOne, pointTwo, pointTwo,
+                                pointThree, pointTwo.getTime());
+
+                return forbiddenAnglePoint;
+            }
+        }
+        return null;
+    }
+
+
+    private double calculateAngle(PointOfTrack pointOne, PointOfTrack pointTwo,
+                                 PointOfTrack pointThree) {
+
+        double x1 = pointOne.getLongitude();
+        double y1 = pointOne.getLatitude();
+        double x2 = pointTwo.getLongitude();
+        double y2 = pointTwo.getLatitude();
+        double x3 = pointThree.getLongitude();
+        double y3 = pointThree.getLatitude();
+
+        double angle1 = Math.atan2(y1 - y2, x1 - x2);
+        double angle2 = Math.atan2(y2 - y3, x2 - x3);
+
+        double angle = Math.abs(Math.abs(angle1) - Math.abs(angle2));
+        angle = Math.toDegrees(angle);
+
+        return angle;
     }
 }

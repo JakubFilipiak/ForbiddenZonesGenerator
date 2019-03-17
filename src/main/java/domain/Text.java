@@ -14,6 +14,7 @@ public enum Text {
 
     @Getter
     @Setter
-    private File textFile = new File("D:/ForbiddenZonesGenerator " +
-            "resources/ForbiddenZonesBig2App.txt");
+    private File textFile;
+//    private File textFile = new File("D:/ForbiddenZonesGenerator " +
+//            "resources/ForbiddenZonesBig2App.txt");
 }

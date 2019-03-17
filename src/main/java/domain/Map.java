@@ -4,7 +4,7 @@ import lombok.Getter;
 import lombok.Setter;
 
 import java.awt.*;
-import java.io.File;
+import java.io.*;
 
 /**
  * Created by Jakub Filipiak on 27.02.2019.
@@ -13,9 +13,18 @@ public enum Map {
 
     INSTANCE;
 
+    //    ClassLoader classLoader = getClass().getClassLoader();
+//    File defaultMapFile =
+//            new File(classLoader.getResource("LublinBig2.png").getFile());
+
     @Getter @Setter
-    private File mapFile = new File("D:/ForbiddenZonesGenerator " +
-            "resources/maps/LublinBig2.png");
+    private InputStream mapFileInputStream = Map.class.getResourceAsStream(
+            "/LublinBig2.png");
+
+
+
+//    @Getter @Setter
+//    private File mapFile = defaultMapFile;
 
     private Color defaultAllowedColor = new Color(25, 144, 25);;
     private Color defaultForbiddenColor = new Color(0, 0, 0);
