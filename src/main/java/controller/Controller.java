@@ -42,38 +42,47 @@ public class Controller {
 
     @FXML private TextArea logTextArea;
 
-    @FXML private ComboBox<String> existingConfigurationsComboBox =
-            new ComboBox<>();
+    @FXML private ChoiceBox<String> existingConfigurationChoiceBox;
 
     //
 
+    @FXML private CheckBox processTimeRangeCheckBox;
     @FXML private TextField dropStartTimeTextField;
     @FXML private TextField dropStopTimeTextField;
+    @FXML private CheckBox processPointsCheckBox;
+    @FXML private TextField pointsInTimeBufferTextField;
+    @FXML private TextField pointOutTimeBufferTextField;
+    @FXML private CheckBox processTurnsCheckBox;
     @FXML private TextField minimumAngleTextField;
+    @FXML private TextField turnsInTimeBufferTextField;
+    @FXML private TextField turnsOutTimeBufferTextField;
+    @FXML private CheckBox dropOnTurnsCheckBox;
     @FXML private TextField ignoredTurnsMinValueTextField;
     @FXML private TextField ignoredTurnsMaxValueTextField;
-    @FXML private TextField timeBufferTextField;
-    @FXML private CheckBox dropOnTurnsCheckBox;
+    @FXML private CheckBox pointsMultipliedCheckBox;
+    @FXML private TextField pointsDividerTextField;
+    @FXML private CheckBox finalFileFormCheckBox;
 
 
-    @FXML
-    public void updateConfigurationsComboBox() {
-        existingConfigurationsComboBox.getItems().add("Domyślna");
-    }
 
     @FXML
-    public void loadChosenConfiguration() {
-        String chosenConfiguration = existingConfigurationsComboBox.getValue();
-        if (chosenConfiguration.equals("Domyślna")) {
-
+    public void loadChosenConfiguration() throws IOException {
+        String chosenConfiguration = existingConfigurationChoiceBox.getValue();
+        if (chosenConfiguration.equals("Domyślna v2")) {
+            mapService.setMapParameters("v2");
             chooseTrackFileButton.setDisable(false);
-            logTextArea.appendText('\n' + "Załadowano domyślną konfigurację! " +
+            logTextArea.appendText('\n' + "Załadowano konfigurację: Domyślna v2! " +
+                    "Wybierz plik trasy...");
+        } else if (chosenConfiguration.equals("Domyślna v3")) {
+            mapService.setMapParameters("v3");
+            chooseTrackFileButton.setDisable(false);
+            logTextArea.appendText('\n' + "Załadowano konfigurację: Domyślna v3! " +
                     "Wybierz plik trasy...");
         }
     }
 
     @FXML
-    public void chooseMapFile() throws FileNotFoundException {
+    public void chooseMapFile() throws IOException {
 
         FileChooser fileChooser = new FileChooser();
         fileChooser.setTitle("Wybierz plik mapy");
@@ -86,6 +95,10 @@ public class Controller {
 
             InputStream inputStream = new FileInputStream(mapFileTmp);
             map.setMapFileInputStream(inputStream);
+
+            map.setMapFile(mapFileTmp);
+            System.out.println(map.getMapFile());
+            System.out.println(map.getMapImage());
             mapFileNameTextField.setText(mapFileTmp.getName());
 
             checkConfigurationCorrectnessButton.setDisable(false);
@@ -95,7 +108,7 @@ public class Controller {
     }
 
     @FXML
-    public void checkConfigurationCorrectness() {
+    public void checkConfigurationCorrectness() throws IOException {
 
         String bottomLeftCornerLatitude = bottomLeftCornerLatitudeTextField.getText();
         String bottomLeftCornerLongitude = bottomLeftCornerLongitudeTextField.getText();
@@ -113,14 +126,18 @@ public class Controller {
                     "sprawdź poprawność ponownie!");
         } else {
             logTextArea.appendText('\n' + "Trwa analiza mapy, proszę czekać...");
+            map.setBottomLeftCornerLatitude(Float.parseFloat(bottomLeftCornerLatitude));
+            map.setBottomLeftCornerLongitude(Float.parseFloat(bottomLeftCornerLongitude));
+            map.setUpperRightCornerLatitude(Float.parseFloat(upperRightCornerLatitude));
+            map.setUpperRightCornerLongitude(Float.parseFloat(upperRightCornerLongitude));
         }
 
         if (allCoordinatesAreFilled && mapService.checkMapColors()) {
 
-            map.setBottomLeftCornerLatitude(Float.parseFloat(bottomLeftCornerLatitude));
-            map.setBottomLeftCornerLongitude(Float.parseFloat(bottomLeftCornerLongitude));
-            map.setUpperRightCornerLatitude(Float.parseFloat(upperRightCornerLatitude));
-            map.setBottomLeftCornerLongitude(Float.parseFloat(upperRightCornerLongitude));
+//            map.setBottomLeftCornerLatitude(Float.parseFloat(bottomLeftCornerLatitude));
+//            map.setBottomLeftCornerLongitude(Float.parseFloat(bottomLeftCornerLongitude));
+//            map.setUpperRightCornerLatitude(Float.parseFloat(upperRightCornerLatitude));
+//            map.setBottomLeftCornerLongitude(Float.parseFloat(upperRightCornerLongitude));
 
             correctnessOfAllowedColors.setText("Obszary dozwolone: OK");
             correctnessOfForbiddenColors.setText("Obszary zabronione: OK");
@@ -148,7 +165,7 @@ public class Controller {
             trackFileNameTextField.setText(trackFileTmp.getName());
 
             generateForbiddenZonesButton.setDisable(false);
-            logTextArea.appendText('\n' + "Załadowano plik: " + trackFileTmp.getName() + ". Wygeneruj zestaw stref zakazanych...");
+            logTextArea.appendText('\n' + "Załadowano plik: " + trackFileTmp.getName() + ". Zaktualizuj ustawienia...");
         }
     }
 
@@ -158,7 +175,9 @@ public class Controller {
         FileChooser saveFileChooser = new FileChooser();
         saveFileChooser.setTitle("Zapisz plik ze strefami zakazanymi");
         saveFileChooser.getExtensionFilters().add(new FileChooser.ExtensionFilter("TXT", "*.txt"));
-        saveFileChooser.setInitialFileName("strefy zakazane");
+        String txtFileName = track.getTrackFile().getName().replaceFirst("[.][^" +
+                ".]+$","") + "-StrefyZakazane";
+        saveFileChooser.setInitialFileName(txtFileName);
         File textFileTmp = saveFileChooser.showSaveDialog(null);
 
         //updateConfiguration();
@@ -174,36 +193,87 @@ public class Controller {
         }
     }
 
+
+
+
     @FXML
     private void updateConfiguration() {
 
+        boolean processTimeRange = processTimeRangeCheckBox.isSelected();
         String dropStartTime = dropStartTimeTextField.getText();
         String dropStopTime = dropStopTimeTextField.getText();
+
+        boolean processPoints = processPointsCheckBox.isSelected();
+        String pointsInTimeBuffer = pointsInTimeBufferTextField.getText();
+        String pointsOutTimeBuffer = pointOutTimeBufferTextField.getText();
+
+        boolean processTurns = processTurnsCheckBox.isSelected();
         String minimumAngle = minimumAngleTextField.getText();
+        String turnsInTimeBuffer = turnsInTimeBufferTextField.getText();
+        String turnsOutTimeBuffer = turnsOutTimeBufferTextField.getText();
+
+        boolean dropOnTurns = dropOnTurnsCheckBox.isSelected();
         String ignoredTurnsMinValue = ignoredTurnsMinValueTextField.getText();
         String ignoredTurnsMaxValue = ignoredTurnsMaxValueTextField.getText();
-        String timeBuffer = timeBufferTextField.getText();
-        boolean dropOnTurns = dropOnTurnsCheckBox.isSelected();
 
-        if (!dropStartTime.isEmpty()) {
-            properties.setDropStartTime(LocalTime.parse(dropStartTime));
+        boolean pointsMultiplied = pointsMultipliedCheckBox.isSelected();
+        String pointsDivider = pointsDividerTextField.getText();
+
+        boolean finalFileForm = finalFileFormCheckBox.isSelected();
+
+
+        if (processTimeRange) {
+            properties.setProcessTimeRange(true);
+            if (!dropStartTime.isEmpty())
+                properties.setDropStartTime(LocalTime.parse(dropStartTime));
+            if (!dropStopTime.isEmpty())
+                properties.setDropStopTime(LocalTime.parse(dropStopTime));
+        } else {
+            properties.setProcessTimeRange(false);
         }
-        if (!dropStopTime.isEmpty()) {
-            properties.setDropStopTime(LocalTime.parse(dropStopTime));
+        if (processPoints) {
+            properties.setProcessPoints(true);
+            if (!pointsInTimeBuffer.isEmpty())
+                properties.setPointsInTimeBuffer(Integer.parseInt(pointsInTimeBuffer));
+            if (!pointsOutTimeBuffer.isEmpty())
+                properties.setPointsOutTimeBuffer(Integer.parseInt(pointsOutTimeBuffer));
+        } else {
+            properties.setProcessPoints(false);
         }
-        if (!minimumAngle.isEmpty()) {
-            properties.setMinimumAngle(Integer.parseInt(minimumAngle));
+        if (processTurns) {
+            properties.setProcessTurns(true);
+            if (!minimumAngle.isEmpty())
+                properties.setMinimumAngle(Integer.parseInt(minimumAngle));
+            if (!turnsInTimeBuffer.isEmpty())
+                properties.setTurnsInTimeBuffer(Integer.parseInt(turnsInTimeBuffer));
+            if (!turnsOutTimeBuffer.isEmpty())
+                properties.setTurnsOutTimeBuffer(Integer.parseInt(turnsOutTimeBuffer));
+        } else {
+            properties.setProcessTurns(false);
         }
-        if (!ignoredTurnsMinValue.isEmpty()) {
-            properties.setIgnoredTurnsMinValue(Integer.parseInt(ignoredTurnsMinValue));
+        if (dropOnTurns) {
+            properties.setDropOnTurns(true);
+            if (!ignoredTurnsMinValue.isEmpty())
+                properties.setIgnoredTurnsMinValue(Integer.parseInt(ignoredTurnsMinValue));
+            if (!ignoredTurnsMaxValue.isEmpty())
+                properties.setIgnoredTurnsMaxValue(Integer.parseInt(ignoredTurnsMaxValue));
+        } else {
+            properties.setDropOnTurns(false);
         }
-        if (!ignoredTurnsMaxValue.isEmpty()) {
-            properties.setIgnoredTurnsMaxValue(Integer.parseInt(ignoredTurnsMaxValue));
+        if (pointsMultiplied) {
+            properties.setPointsMultiplied(true);
+            if (!pointsDivider.isEmpty())
+                properties.setPointsDivider(Integer.parseInt(pointsDivider));
+        } else {
+            properties.setPointsMultiplied(false);
         }
-        if (!timeBuffer.isEmpty()) {
-            properties.setTimeBuffer(Integer.parseInt(timeBuffer));
+        if (finalFileForm) {
+            properties.setFinalFileForm(true);
+        } else {
+            properties.setFinalFileForm(false);
         }
 
-        properties.setDropOnTurns(dropOnTurns);
+        logTextArea.appendText('\n' + "Zaktualizowano ustawienia. Wygeneruj zestaw" +
+                " stref zakazanych...");
     }
 }

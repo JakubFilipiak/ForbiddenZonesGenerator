@@ -1,14 +1,13 @@
 package service;
 
-import domain.ForbiddenAnglePoint;
-import domain.Map;
-import domain.PointOfTrack;
-import domain.Properties;
+import domain.*;
 
 import javax.imageio.ImageIO;
 import java.awt.*;
 import java.awt.image.BufferedImage;
+import java.io.File;
 import java.io.IOException;
+import java.io.InputStream;
 import java.time.LocalTime;
 import java.util.HashSet;
 import java.util.Set;
@@ -23,26 +22,32 @@ public enum MapService {
     private Map map = Map.INSTANCE;
     private Properties properties = Properties.INSTANCE;
 
-
-
-    private BufferedImage mapImage;
-
     private PointOfTrack pointOne = null;
     private PointOfTrack pointTwo = null;
     private PointOfTrack pointThree = null;
 
     private double angle;
 
+    private BufferedImage mapImage;
 
-    {
-        try {
-            mapImage = ImageIO.read(map.getMapFileInputStream());
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-    }
+    private InputStream mapInputStream;
 
-    public boolean checkMapColors() {
+//    {
+//        try {
+//            mapImage = ImageIO.read(map.getMapFile());
+//        } catch (IOException e) {
+//            e.printStackTrace();
+//        }
+//    }
+
+
+
+    public boolean checkMapColors() throws IOException {
+
+//        Map map = Map.INSTANCE;
+
+        mapImage = map.getMapImage();
+        System.out.println(mapImage);
 
         int height = mapImage.getHeight();
         int width = mapImage.getWidth();
@@ -50,6 +55,9 @@ public enum MapService {
         int  x;
 
         Set<Color> otherColorsSet = new HashSet<>();
+        Set<Color> colorSet = new HashSet<>();
+        Set<Coordinates> coordinatesSet = new HashSet<>();
+
 
         for (x = 0; x < width; x++) {
             for (y = 0; y < height; y++) {
@@ -58,28 +66,44 @@ public enum MapService {
 
                 if (tmpColor.getRGB() != map.getAllowedColor().getRGB() && tmpColor.getRGB() != map.getForbiddenColor().getRGB()) {
                     otherColorsSet.add(tmpColor);
+                    coordinatesSet.add(new Coordinates(x, y));
+                } else {
+                    colorSet.add(tmpColor);
                 }
             }
         }
         if (otherColorsSet.isEmpty()) {
             System.out.println("Correct colors detected!");
+            System.out.println(colorSet);
             return true;
         } else {
             System.out.println("Incorrect color detected! " + otherColorsSet.toString());
+            System.out.println("Coordinates: " + coordinatesSet);
             return false;
         }
     }
 
-    public LocalTime analyzePoint(PointOfTrack pointOfTrack) {
+    public LocalTime analyzePoint(PointOfTrack pointOfTrack) throws IOException {
+
+//        Map map = Map.INSTANCE;
+
+        System.out.println(mapImage);
+
+        System.out.println("Coordinates:");
+        System.out.println(map.getBottomLeftCornerLatitude() + ", " + map.getBottomLeftCornerLongitude());
+        System.out.println(map.getUpperRightCornerLatitude() + ", " + map.getUpperRightCornerLongitude());
 
         float relativeLongitudeZero = map.getRelativeLongitudeZero();
         float relativeLatitudeZero = map.getRelativeLatitudeZero();
 
-        float relativeX = pointOfTrack.getLongitude() - relativeLongitudeZero;
+        float relativeX = pointOfTrack.getLongitude() - map.getRelativeLongitudeZero();
         System.out.println(relativeX);
 
-        float relativeY =  relativeLatitudeZero - pointOfTrack.getLatitude();
+        float relativeY =  map.getRelativeLatitudeZero() - pointOfTrack.getLatitude();
         System.out.println(relativeY);
+
+        System.out.println(mapImage);
+        System.out.println(mapImage.getWidth());
 
         float pixelX =
                 relativeX / map.getLongitudeResolution() * mapImage.getWidth() - 1;
@@ -140,5 +164,60 @@ public enum MapService {
         angle = Math.toDegrees(angle);
 
         return angle;
+    }
+
+        public void setMapParameters(String version) throws IOException {
+
+//            Map map = Map.INSTANCE;
+
+        ClassLoader classLoader = getClass().getClassLoader();
+
+
+
+
+        if (version.equals("v2")) {
+
+//            File mapFile =
+//                    new File(classLoader.getResource("LublinBig2.png").getFile());
+            map.setMapFileInputStream(MapService.class.getResourceAsStream(
+                    "/LublinBig2.png"));
+
+            mapInputStream = map.getMapFileInputStream();
+
+            mapImage = ImageIO.read(mapInputStream);
+//            map.setMapFileInputStream(map.getV2MapFileInputStream());
+//            System.out.println("New input stream: " + map.getMapFileInputStream());
+//            BufferedImage mapImage = ImageIO.read(map.getMapFileInputStream());
+
+            map.setBottomLeftCornerLatitude(map.getV2BottomLeftCornerLatitude());
+            map.setBottomLeftCornerLongitude(map.getV2BottomLeftCornerLongitude());
+            map.setUpperRightCornerLatitude(map.getV2UpperRightCornerLatitude());
+            map.setUpperRightCornerLongitude(map.getV2UpperRightCornerLongitude());
+        } else if (version.equals("v3")) {
+
+//            File mapFile =
+//                    new File(classLoader.getResource("LublinBig3.png").getFile());
+
+            map.setMapFileInputStream(MapService.class.getResourceAsStream(
+                    "/LublinBig3.png"));
+
+            mapInputStream = map.getMapFileInputStream();
+
+            mapImage = ImageIO.read(mapInputStream);
+//            map.setMapFileInputStream(map.getV3MapFileInputStream());
+//            System.out.println("New input stream: " + map.getMapFileInputStream());
+//            BufferedImage mapImage = ImageIO.read(map.getMapFileInputStream());
+
+            map.setBottomLeftCornerLatitude(map.getV3BottomLeftCornerLatitude());
+            map.setBottomLeftCornerLongitude(map.getV3BottomLeftCornerLongitude());
+            map.setUpperRightCornerLatitude(map.getV3UpperRightCornerLatitude());
+            map.setUpperRightCornerLongitude(map.getV3UpperRightCornerLongitude());
+        }
+    }
+
+    public void eraseVariables() {
+        pointOne = null;
+        pointTwo = null;
+        pointThree = null;
     }
 }

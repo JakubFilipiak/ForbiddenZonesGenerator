@@ -2,6 +2,7 @@ package service;
 
 import domain.ForbiddenZone;
 import domain.ForbiddenZones;
+import domain.Properties;
 import utils.IntervalComparator;
 
 import java.io.IOException;
@@ -19,6 +20,7 @@ public enum ForbiddenZonesService {
 
 
     private ForbiddenZones forbiddenZones = ForbiddenZones.INSTANCE;
+    private Properties properties = Properties.INSTANCE;
 
 
 
@@ -38,21 +40,27 @@ public enum ForbiddenZonesService {
         mergedList.addAll(forbiddenByColors);
         mergedList.addAll(forbiddenByAngles);
 
-        textService.writeText("Poniżej wszystkie listy po kolei:");
-        textService.writeText("Dolot/powrót:");
-        textService.writeList(forbiddenByDrop);
-        textService.writeText("Czarne punkty:");
-        textService.writeList(forbiddenByColors);
-        textService.writeText("Zakręty:");
-        textService.writeList(forbiddenByAngles);
+        if (!properties.isFinalFileForm()) {
+            textService.writeText("Ponizej wszystkie listy po kolei:");
+            textService.writeText("Dolot/powrot:");
+            textService.writeList(forbiddenByDrop);
+            textService.writeText("\nCzarne punkty:");
+            textService.writeList(forbiddenByColors);
+            textService.writeText("\nZakrety:");
+            textService.writeList(forbiddenByAngles);
+        }
+
 
         if (mergedList.size() == 0 || mergedList.size() == 1) {
             return mergedList;
         }
 
         Collections.sort(mergedList, new IntervalComparator());
-        textService.writeText("Poniżej listy połączone i posegregowane:");
-        textService.writeList(mergedList);
+
+        if (!properties.isFinalFileForm()) {
+            textService.writeText("\nPonizej listy polaczone i posegregowane:");
+            textService.writeList(mergedList);
+        }
 
         ForbiddenZone firstZone = mergedList.get(0);
         LocalTime entranceTime = firstZone.getEntranceTime();
@@ -83,7 +91,7 @@ public enum ForbiddenZonesService {
     private void clearAllList() {
         forbiddenZones.getForbiddenByDrop().clear();
         forbiddenZones.getForbiddenByColors().clear();
-        forbiddenZones.getForbiddenByAngles();
+        forbiddenZones.getForbiddenByAngles().clear();
         mergedList.clear();
     }
 

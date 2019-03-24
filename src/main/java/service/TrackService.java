@@ -3,7 +3,9 @@ package service;
 import domain.*;
 
 import java.io.*;
+import java.time.Duration;
 import java.time.LocalTime;
+import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -37,13 +39,18 @@ public enum TrackService {
 
     private boolean startTimeSaved = false;
 
+    private PointOfTrack previousPoint = null;
+    private PointOfTrack actualPoint = null;
+
+    int pointDivider = properties.getPointsDivider();
+
+    private boolean firstElement = true;
+
 
 
     public void processFile() throws IOException {
 
         TextService textService = TextService.INSTANCE;
-
-
 
         InputStream bufferedInputStream =
                 new BufferedInputStream(new FileInputStream(track.getTrackFile()));
@@ -51,7 +58,6 @@ public enum TrackService {
                 new BufferedReader(new InputStreamReader(bufferedInputStream));
 
         String line;
-
 
         textService.initializeFileWriter();
 
@@ -84,43 +90,110 @@ public enum TrackService {
                     index++;
                 }
 
-                if (!startTimeSaved) {
-                    forbiddenByDrop.add(new ForbiddenZone(time, properties.getDropStartTime()));
-                    startTimeSaved = true;
+                if (properties.isProcessTimeRange()) {
+                    if (!startTimeSaved) {
+                        forbiddenByDrop.add(new ForbiddenZone(time, properties.getDropStartTime()));
+                        startTimeSaved = true;
+                    }
                 }
+
                 PointOfTrack pointOfTrack = new PointOfTrack(latitude, longitude,
                         time);
-                //System.out.println(pointOfTrack);
-                LocalTime tmpForbiddenPoint = mapService.analyzePoint(pointOfTrack);
-                ForbiddenAnglePoint tmpForbiddenAnglePoint =
-                        mapService.analyzeAngle(pointOfTrack);
 
-                createForbiddenZoneBeta(tmpForbiddenPoint,
-                        tmpForbiddenAnglePoint);
+                if (properties.isProcessPoints()) {
+                    if (properties.isPointsMultiplied()) {
+                        if (firstElement && time != null) {
+                            LocalTime tmpFirstForbiddenPoint =
+                                    mapService.analyzePoint(pointOfTrack);
+                            createForbiddenZoneByColor(tmpFirstForbiddenPoint);
+                            firstElement = false;
+                        }
+                        List<PointOfTrack> dummyPointsList =
+                                increaseAmountOfPoints(pointOfTrack);
+                        for (PointOfTrack tmpDummyPoint : dummyPointsList) {
+                            LocalTime tmpForbiddenDummyPoint =
+                                    mapService.analyzePoint(tmpDummyPoint);
+                            createForbiddenZoneByColor(tmpForbiddenDummyPoint);
+                        }
+                    } else {
+                        LocalTime tmpForbiddenPoint = mapService.analyzePoint(pointOfTrack);
+                        createForbiddenZoneByColor(tmpForbiddenPoint);
 
+                    }
+                }
+
+                if (properties.isProcessTurns()) {
+                    ForbiddenAnglePoint tmpForbiddenAnglePoint =
+                            mapService.analyzeAngle(pointOfTrack);
+
+                    createForbiddenZoneByAngle(tmpForbiddenAnglePoint);
+                }
             }
         }
-        forbiddenByDrop.add(new ForbiddenZone(properties.getDropStopTime(), time));
+
+        if (properties.isProcessTimeRange()) {
+            forbiddenByDrop.add(new ForbiddenZone(properties.getDropStopTime(), time));
+        }
+
         List<ForbiddenZone> finalList = forbiddenZonesService.mergeLists();
-        textService.writeText("Poniżej listy scalone i posegregowane:");
+        if (!properties.isFinalFileForm()) {
+            textService.writeText("\nPonizej listy scalone i posegregowane:");
+        }
         textService.writeList(finalList);
         textService.closeFileWriter();
+
+        mapService.eraseVariables();
+        startTimeSaved = false;
+        firstElement = true;
+        previousPoint = null;
+        actualPoint = null;
+        forbiddenAngleZone = null;
+        forbiddenAngleZoneCreated = false;
+        numberOfForbiddenAnglePoints = 0;
     }
 
-    private void createForbiddenZoneBeta(LocalTime tmpForbiddenTime,
-                                         ForbiddenAnglePoint tmpForbiddenAnglePoint) throws IOException {
+    private List<PointOfTrack> increaseAmountOfPoints(PointOfTrack pointOfTrack) {
 
-        int timeBuffer = properties.getTimeBuffer();
-        boolean dropOnTurns = properties.isDropOnTurns();
-        int ignoredTurnsMinValue = properties.getIgnoredTurnsMinValue();
-        int ignoredTurnsMaxValue = properties.getIgnoredTurnsMaxValue();
+        previousPoint = actualPoint;
+        actualPoint = pointOfTrack;
+
+        List<PointOfTrack> dummyPointsList = new ArrayList<>();
+
+        if (previousPoint != null && actualPoint != null) {
+
+            float latitideDelta = actualPoint.getLatitude() - previousPoint.getLatitude();
+            float longitudeDelta = actualPoint.getLongitude() - previousPoint.getLongitude();
+            long timeDelta = Duration.between(previousPoint.getTime(),
+                    actualPoint.getTime()).toMillis() / 1000;
+            float latitudeInterval = latitideDelta / pointDivider;
+            float longitudeInterval = longitudeDelta / pointDivider;
+            int timeInterval = (int)timeDelta / pointDivider;
+
+            for (int i = 1; i < pointDivider; i++) {
+                float tmpLatitude = previousPoint.getLatitude() + (i * latitudeInterval);
+                float tmpLongitude = previousPoint.getLongitude() + (i * longitudeInterval);
+                LocalTime tmpTime = previousPoint.getTime().plusSeconds(timeInterval);
+
+                dummyPointsList.add(new PointOfTrack(tmpLatitude, tmpLongitude,
+                        tmpTime));
+            }
+            dummyPointsList.add(actualPoint);
+        }
+
+        return dummyPointsList;
+    }
 
 
+    private void createForbiddenZoneByColor(LocalTime tmpForbiddenTime) {
+
+        int pointsInTimeBuffer = properties.getPointsInTimeBuffer();
+        int pointsOutTimeBuffer = properties.getPointsOutTimeBuffer();
 
         if (tmpForbiddenTime != null) {
             if (!forbiddenZoneCreated) {
                 //tmpEntranceTime = tmpForbiddenPoint;
-                forbiddenZone = new ForbiddenZone(tmpForbiddenTime.minusSeconds(timeBuffer));
+                forbiddenZone =
+                        new ForbiddenZone(tmpForbiddenTime.minusSeconds(pointsInTimeBuffer));
                 forbiddenZoneCreated = true;
                 numberOfForbiddenPoints = 1;
             } else {
@@ -130,13 +203,16 @@ public enum TrackService {
             }
         } else {
             if (numberOfForbiddenPoints == 1) {
-                forbiddenZone.setDepartureTime(forbiddenZone.getEntranceTime().plusSeconds(2 * timeBuffer));
-                forbiddenByColors.add(forbiddenZone);
-                System.out.println("Forbidden zone written: " + forbiddenZone.toString());
+//                forbiddenZone.setDepartureTime(forbiddenZone.getEntranceTime().plusSeconds(2 * timeBuffer));
+//                forbiddenByColors.add(forbiddenZone);
+//                System.out.println("Forbidden zone written: " + forbiddenZone.toString());
+//                forbiddenZoneCreated = false;
+//                numberOfForbiddenPoints = 0;
+                forbiddenZone = null;
                 forbiddenZoneCreated = false;
                 numberOfForbiddenPoints = 0;
             } else if (numberOfForbiddenPoints > 1) {
-                forbiddenZone.setDepartureTime(forbiddenZone.getDepartureTime().plusSeconds(timeBuffer));
+                forbiddenZone.setDepartureTime(forbiddenZone.getDepartureTime().plusSeconds(pointsOutTimeBuffer));
                 forbiddenByColors.add(forbiddenZone);
                 System.out.println("Forbidden zone written: " + forbiddenZone.toString());
                 forbiddenZoneCreated = false;
@@ -148,13 +224,22 @@ public enum TrackService {
             }
         }
 
-        // part od angle analyzing
+    }
+
+
+    private void createForbiddenZoneByAngle(ForbiddenAnglePoint tmpForbiddenAnglePoint) {
+
+        int turnsInTimeBuffer = properties.getTurnsInTimeBuffer();
+        int turnsOutTimeBuffer = properties.getTurnsOutTimeBuffer();
+        boolean dropOnTurns = properties.isDropOnTurns();
+        int ignoredTurnsMinValue = properties.getIgnoredTurnsMinValue();
+        int ignoredTurnsMaxValue = properties.getIgnoredTurnsMaxValue();
 
         if (tmpForbiddenAnglePoint != null) {
             if (!forbiddenAngleZoneCreated) {
                 //tmpEntranceTime = tmpForbiddenPoint;
                 forbiddenAngleZone =
-                        new ForbiddenZone(tmpForbiddenAnglePoint.getForbiddenAngleTime().minusSeconds(timeBuffer));
+                        new ForbiddenZone(tmpForbiddenAnglePoint.getForbiddenAngleTime().minusSeconds(turnsInTimeBuffer));
                 forbiddenAngleZoneCreated = true;
                 numberOfForbiddenAnglePoints = 1;
                 double y1 =
@@ -188,7 +273,7 @@ public enum TrackService {
                     forbiddenAngleZoneCreated = false;
                     numberOfBreakpoints = 0;
                     if (numberOfForbiddenAnglePoints >= 2) {
-                        forbiddenAngleZone.setDepartureTime(forbiddenAngleZone.getDepartureTime().plusSeconds(timeBuffer));
+                        forbiddenAngleZone.setDepartureTime(forbiddenAngleZone.getDepartureTime().plusSeconds(turnsOutTimeBuffer));
                         double turnAngle = Math.abs(Math.abs(entranceTimeAngle) - Math.abs(departureTimeAngle));
                         turnAngle = Math.toDegrees(turnAngle);
 
@@ -222,4 +307,5 @@ public enum TrackService {
             }
         }
     }
+
 }

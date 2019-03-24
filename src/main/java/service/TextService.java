@@ -5,6 +5,8 @@ import domain.Text;
 
 import java.io.FileWriter;
 import java.io.IOException;
+import java.time.LocalTime;
+import java.time.format.DateTimeFormatter;
 import java.util.List;
 
 /**
@@ -17,6 +19,7 @@ public enum TextService {
 
     Text text = Text.INSTANCE;
     private FileWriter fileWriter;
+    DateTimeFormatter dateTimeFormatter = DateTimeFormatter.ofPattern("HH:mm:ss");
 
     public void initializeFileWriter() throws IOException {
 
@@ -29,9 +32,16 @@ public enum TextService {
 //    }
 
     public void writeList(List<ForbiddenZone> mergedList) throws IOException {
+        int i = 1;
         for (ForbiddenZone tmpForbiddenZone : mergedList) {
-            fileWriter.write(tmpForbiddenZone.getEntranceTime() + " " + tmpForbiddenZone.getDepartureTime());
-            fileWriter.write(System.getProperty("line.separator"));
+            LocalTime entranceTime = tmpForbiddenZone.getEntranceTime();
+            LocalTime departureTime = tmpForbiddenZone.getDepartureTime();
+            fileWriter.write(entranceTime.format(dateTimeFormatter) + " " + departureTime.format(dateTimeFormatter));
+
+            if (i < mergedList.size()) {
+                fileWriter.write(System.getProperty("line.separator"));
+                i++;
+            }
         }
 
     }
