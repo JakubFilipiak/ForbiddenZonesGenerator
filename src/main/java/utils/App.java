@@ -19,7 +19,9 @@ public class App extends Application {
         Scene scene = new Scene(layout);
         primaryStage.setScene(scene);
         primaryStage.setTitle("Generator stref zakazanych");
-        primaryStage.setResizable(false);
+        primaryStage.setMinWidth(620);
+        primaryStage.setMinHeight(750);
+        primaryStage.setResizable(true);
         primaryStage.show();
     }
 

@@ -87,38 +87,38 @@ public enum MapService {
 
 //        Map map = Map.INSTANCE;
 
-        System.out.println(mapImage);
+//        System.out.println(mapImage);
 
-        System.out.println("Coordinates:");
-        System.out.println(map.getBottomLeftCornerLatitude() + ", " + map.getBottomLeftCornerLongitude());
-        System.out.println(map.getUpperRightCornerLatitude() + ", " + map.getUpperRightCornerLongitude());
+//        System.out.println("Coordinates:");
+//        System.out.println(map.getBottomLeftCornerLatitude() + ", " + map.getBottomLeftCornerLongitude());
+//        System.out.println(map.getUpperRightCornerLatitude() + ", " + map.getUpperRightCornerLongitude());
 
         float relativeLongitudeZero = map.getRelativeLongitudeZero();
         float relativeLatitudeZero = map.getRelativeLatitudeZero();
 
         float relativeX = pointOfTrack.getLongitude() - map.getRelativeLongitudeZero();
-        System.out.println(relativeX);
+//        System.out.println(relativeX);
 
         float relativeY =  map.getRelativeLatitudeZero() - pointOfTrack.getLatitude();
-        System.out.println(relativeY);
+//        System.out.println(relativeY);
 
-        System.out.println(mapImage);
-        System.out.println(mapImage.getWidth());
+//        System.out.println(mapImage);
+//        System.out.println(mapImage.getWidth());
 
         float pixelX =
                 relativeX / map.getLongitudeResolution() * mapImage.getWidth() - 1;
         float pixelY =
                 relativeY / map.getLatitudeResolution() * mapImage.getHeight() - 1;
 
-        System.out.println(pixelX + ", " + pixelY);
+//        System.out.println("Image coordinates [px]: " + pixelX + ", " + pixelY);
 
         Color pixelColor = new Color(mapImage.getRGB((int)pixelX, (int)pixelY));
 
         if (pixelColor.getRGB() != map.getAllowedColor().getRGB()) {
-            System.out.println(pointOfTrack.getTime());
+            System.out.println("Forbidden time: " + pointOfTrack.getTime());
             return pointOfTrack.getTime();
         } else {
-            System.out.println("...");
+//            System.out.println("...");
             return null;
         }
     }
@@ -170,16 +170,13 @@ public enum MapService {
 
 //            Map map = Map.INSTANCE;
 
-        ClassLoader classLoader = getClass().getClassLoader();
-
-
-
+//        ClassLoader classLoader = getClass().getClassLoader();
 
         if (version.equals("v2")) {
 
 //            File mapFile =
 //                    new File(classLoader.getResource("LublinBig2.png").getFile());
-            map.setMapFileInputStream(MapService.class.getResourceAsStream(
+            map.setMapFileInputStream(getClass().getResourceAsStream(
                     "/LublinBig2.png"));
 
             mapInputStream = map.getMapFileInputStream();
@@ -193,12 +190,43 @@ public enum MapService {
             map.setBottomLeftCornerLongitude(map.getV2BottomLeftCornerLongitude());
             map.setUpperRightCornerLatitude(map.getV2UpperRightCornerLatitude());
             map.setUpperRightCornerLongitude(map.getV2UpperRightCornerLongitude());
+            System.out.println("Read v2 config!");
+            System.out.println("Map file: " + mapImage);
+            System.out.println("Coordinates:");
+            System.out.println(map.getBottomLeftCornerLatitude() + ", " + map.getBottomLeftCornerLongitude());
+            System.out.println(map.getUpperRightCornerLatitude() + ", " + map.getUpperRightCornerLongitude());
+            System.out.println("---");
+        } else if (version.equals("v2b")) {
+
+//            File mapFile =
+//                    new File(classLoader.getResource("LublinBig3.png").getFile());
+
+            map.setMapFileInputStream(getClass().getResourceAsStream(
+                    "/26-03-2019 - rowne katy V2.png"));
+
+            mapInputStream = map.getMapFileInputStream();
+
+            mapImage = ImageIO.read(mapInputStream);
+//            map.setMapFileInputStream(map.getV3MapFileInputStream());
+//            System.out.println("New input stream: " + map.getMapFileInputStream());
+//            BufferedImage mapImage = ImageIO.read(map.getMapFileInputStream());
+
+            map.setBottomLeftCornerLatitude(map.getV2BottomLeftCornerLatitude());
+            map.setBottomLeftCornerLongitude(map.getV2BottomLeftCornerLongitude());
+            map.setUpperRightCornerLatitude(map.getV2UpperRightCornerLatitude());
+            map.setUpperRightCornerLongitude(map.getV2UpperRightCornerLongitude());
+            System.out.println("Read v2b config!");
+            System.out.println("Map file: " + mapImage);
+            System.out.println("Coordinates:");
+            System.out.println(map.getBottomLeftCornerLatitude() + ", " + map.getBottomLeftCornerLongitude());
+            System.out.println(map.getUpperRightCornerLatitude() + ", " + map.getUpperRightCornerLongitude());
+            System.out.println("---");
         } else if (version.equals("v3")) {
 
 //            File mapFile =
 //                    new File(classLoader.getResource("LublinBig3.png").getFile());
 
-            map.setMapFileInputStream(MapService.class.getResourceAsStream(
+            map.setMapFileInputStream(getClass().getResourceAsStream(
                     "/LublinBig3.png"));
 
             mapInputStream = map.getMapFileInputStream();
@@ -212,6 +240,12 @@ public enum MapService {
             map.setBottomLeftCornerLongitude(map.getV3BottomLeftCornerLongitude());
             map.setUpperRightCornerLatitude(map.getV3UpperRightCornerLatitude());
             map.setUpperRightCornerLongitude(map.getV3UpperRightCornerLongitude());
+            System.out.println("Read v3 config!");
+            System.out.println("Map file: " + mapImage);
+            System.out.println("Coordinates:");
+            System.out.println(map.getBottomLeftCornerLatitude() + ", " + map.getBottomLeftCornerLongitude());
+            System.out.println(map.getUpperRightCornerLatitude() + ", " + map.getUpperRightCornerLongitude());
+            System.out.println("---");
         }
     }
 

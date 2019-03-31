@@ -26,8 +26,23 @@ public enum ForbiddenZonesService {
 
     private List<ForbiddenZone> mergedList = new ArrayList<>();
 
+    private void removeSinglePoints() {
+        int i = 0;
+        while (i < forbiddenZones.getForbiddenByColors().size()) {
+
+            if (!forbiddenZones.getForbiddenByColors().get(i).getEntranceTime().isAfter(forbiddenZones.getForbiddenByColors().get(i).getDepartureTime()) && !forbiddenZones.getForbiddenByColors().get(i).getEntranceTime().isBefore(forbiddenZones.getForbiddenByColors().get(i).getDepartureTime())) {
+                forbiddenZones.getForbiddenByColors().remove(i);
+
+            } else {
+                i += 1;
+            }
+        }
+    }
+
     public List<ForbiddenZone> mergeLists() throws IOException {
         TextService textService = TextService.INSTANCE;
+
+//        removeSinglePoints();
 
         List<ForbiddenZone> forbiddenByColors =
                 forbiddenZones.getForbiddenByColors();
@@ -70,7 +85,7 @@ public enum ForbiddenZonesService {
 
         for (int i = 1; i < mergedList.size(); i++) {
             ForbiddenZone currentZone = mergedList.get(i);
-            if (currentZone.getEntranceTime().isBefore(departureTime)) {
+            if (currentZone.getEntranceTime().isBefore(departureTime) || currentZone.getEntranceTime().equals(departureTime)) {
                 if (currentZone.getDepartureTime().isAfter(departureTime)) {
                     departureTime = currentZone.getDepartureTime();
                 }
@@ -84,6 +99,30 @@ public enum ForbiddenZonesService {
         finalList.add(new ForbiddenZone(entranceTime, departureTime));
 
         clearAllList();
+
+        return finalList;
+    }
+
+    public List<ForbiddenZone> mergeAgain(List<ForbiddenZone> listToMergeAgain) {
+
+        List<ForbiddenZone> finalList = new ArrayList<>();
+
+        ForbiddenZone firstZone = listToMergeAgain.get(0);
+        LocalTime entranceTime = firstZone.getEntranceTime();
+        LocalTime departureTime = firstZone.getDepartureTime();
+
+        for (int i = 1; i < listToMergeAgain.size(); i++) {
+            ForbiddenZone currentZone = listToMergeAgain.get(i);
+            if (currentZone.getEntranceTime().isBefore(departureTime)) {
+                if (currentZone.getDepartureTime().isAfter(departureTime)) {
+                    departureTime = currentZone.getDepartureTime();
+                }
+            } else {
+                finalList.add(new ForbiddenZone(entranceTime, departureTime));
+                entranceTime = currentZone.getEntranceTime();
+                departureTime = currentZone.getDepartureTime();
+            }
+        }
 
         return finalList;
     }

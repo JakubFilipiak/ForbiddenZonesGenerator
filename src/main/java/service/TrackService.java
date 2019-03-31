@@ -45,6 +45,7 @@ public enum TrackService {
     int pointDivider = properties.getPointsDivider();
 
     private boolean firstElement = true;
+    private boolean justSinglePoint = true;
 
 
 
@@ -110,10 +111,12 @@ public enum TrackService {
                         }
                         List<PointOfTrack> dummyPointsList =
                                 increaseAmountOfPoints(pointOfTrack);
-                        for (PointOfTrack tmpDummyPoint : dummyPointsList) {
-                            LocalTime tmpForbiddenDummyPoint =
-                                    mapService.analyzePoint(tmpDummyPoint);
-                            createForbiddenZoneByColor(tmpForbiddenDummyPoint);
+                        if (!dummyPointsList.isEmpty()) {
+                            for (PointOfTrack tmpDummyPoint : dummyPointsList) {
+                                LocalTime tmpForbiddenDummyPoint =
+                                        mapService.analyzePoint(tmpDummyPoint);
+                                createForbiddenZoneByColor(tmpForbiddenDummyPoint);
+                            }
                         }
                     } else {
                         LocalTime tmpForbiddenPoint = mapService.analyzePoint(pointOfTrack);
@@ -147,6 +150,7 @@ public enum TrackService {
         firstElement = true;
         previousPoint = null;
         actualPoint = null;
+        forbiddenZone = null;
         forbiddenAngleZone = null;
         forbiddenAngleZoneCreated = false;
         numberOfForbiddenAnglePoints = 0;
@@ -169,14 +173,24 @@ public enum TrackService {
             float longitudeInterval = longitudeDelta / pointDivider;
             int timeInterval = (int)timeDelta / pointDivider;
 
-            for (int i = 1; i < pointDivider; i++) {
+            int i = 1;
+            while (i < pointDivider) {
                 float tmpLatitude = previousPoint.getLatitude() + (i * latitudeInterval);
                 float tmpLongitude = previousPoint.getLongitude() + (i * longitudeInterval);
                 LocalTime tmpTime = previousPoint.getTime().plusSeconds(timeInterval);
 
                 dummyPointsList.add(new PointOfTrack(tmpLatitude, tmpLongitude,
                         tmpTime));
+                i++;
             }
+//            for (int i = 1; i < pointDivider; i++) {
+//                float tmpLatitude = previousPoint.getLatitude() + (i * latitudeInterval);
+//                float tmpLongitude = previousPoint.getLongitude() + (i * longitudeInterval);
+//                LocalTime tmpTime = previousPoint.getTime().plusSeconds(timeInterval);
+//
+//                dummyPointsList.add(new PointOfTrack(tmpLatitude, tmpLongitude,
+//                        tmpTime));
+//            }
             dummyPointsList.add(actualPoint);
         }
 
@@ -196,34 +210,52 @@ public enum TrackService {
                         new ForbiddenZone(tmpForbiddenTime.minusSeconds(pointsInTimeBuffer));
                 forbiddenZoneCreated = true;
                 numberOfForbiddenPoints = 1;
+                justSinglePoint = true;
             } else {
                 //tmpDepartureTime = tmpForbiddenPoint;
                 forbiddenZone.setDepartureTime(tmpForbiddenTime);
-                numberOfForbiddenPoints++;
+                numberOfForbiddenPoints+=1;
+                justSinglePoint = false;
             }
         } else {
-            if (numberOfForbiddenPoints == 1) {
-//                forbiddenZone.setDepartureTime(forbiddenZone.getEntranceTime().plusSeconds(2 * timeBuffer));
-//                forbiddenByColors.add(forbiddenZone);
-//                System.out.println("Forbidden zone written: " + forbiddenZone.toString());
-//                forbiddenZoneCreated = false;
-//                numberOfForbiddenPoints = 0;
+            if (!justSinglePoint) {
+                forbiddenZone.setDepartureTime(forbiddenZone.getDepartureTime().plusSeconds(pointsOutTimeBuffer));
+                if (forbiddenZone.getDepartureTime().minusSeconds(pointsOutTimeBuffer).isAfter(forbiddenZone.getEntranceTime().plusSeconds(pointsInTimeBuffer))) {
+                    forbiddenByColors.add(forbiddenZone);
+                }
+                System.out.println("Forbidden zone written: " + forbiddenZone.toString());
                 forbiddenZone = null;
                 forbiddenZoneCreated = false;
                 numberOfForbiddenPoints = 0;
-            } else if (numberOfForbiddenPoints > 1) {
-                forbiddenZone.setDepartureTime(forbiddenZone.getDepartureTime().plusSeconds(pointsOutTimeBuffer));
-                forbiddenByColors.add(forbiddenZone);
-                System.out.println("Forbidden zone written: " + forbiddenZone.toString());
-                forbiddenZoneCreated = false;
-                numberOfForbiddenPoints = 0;
+                justSinglePoint = true;
             } else {
                 forbiddenZone = null;
                 forbiddenZoneCreated = false;
                 numberOfForbiddenPoints = 0;
+                justSinglePoint = true;
             }
+//            if (numberOfForbiddenPoints == 1) {
+////                forbiddenZone.setDepartureTime(forbiddenZone.getEntranceTime().plusSeconds(2 * timeBuffer));
+////                forbiddenByColors.add(forbiddenZone);
+////                System.out.println("Forbidden zone written: " + forbiddenZone.toString());
+////                forbiddenZoneCreated = false;
+////                numberOfForbiddenPoints = 0;
+//                forbiddenZone = null;
+//                forbiddenZoneCreated = false;
+//                numberOfForbiddenPoints = 0;
+//            } else if (numberOfForbiddenPoints >= 2) {
+//                forbiddenZone.setDepartureTime(forbiddenZone.getDepartureTime().plusSeconds(pointsOutTimeBuffer));
+//                forbiddenByColors.add(forbiddenZone);
+//                System.out.println("Forbidden zone written: " + forbiddenZone.toString());
+//                forbiddenZone = null;
+//                forbiddenZoneCreated = false;
+//                numberOfForbiddenPoints = 0;
+//            } else {
+//                forbiddenZone = null;
+//                forbiddenZoneCreated = false;
+//                numberOfForbiddenPoints = 0;
+//            }
         }
-
     }
 
 

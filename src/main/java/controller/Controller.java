@@ -65,6 +65,22 @@ public class Controller {
 
 
 
+//    @FXML
+//    public void readV2Config() throws IOException {
+//        mapService.setMapParameters("v2");
+//        chooseTrackFileButton.setDisable(false);
+//        logTextArea.appendText('\n' + "Załadowano konfigurację: Domyślna v2! " +
+//                "Wybierz plik trasy...");
+//    }
+//
+//    @FXML
+//    public void readV3Config() throws IOException {
+//        mapService.setMapParameters("v3");
+//        chooseTrackFileButton.setDisable(false);
+//        logTextArea.appendText('\n' + "Załadowano konfigurację: Domyślna v3! " +
+//                "Wybierz plik trasy...");
+//    }
+
     @FXML
     public void loadChosenConfiguration() throws IOException {
         String chosenConfiguration = existingConfigurationChoiceBox.getValue();
@@ -73,6 +89,11 @@ public class Controller {
             chooseTrackFileButton.setDisable(false);
             logTextArea.appendText('\n' + "Załadowano konfigurację: Domyślna v2! " +
                     "Wybierz plik trasy...");
+        } else if (chosenConfiguration.equals("Domyślna v2b")) {
+            mapService.setMapParameters("v2b");
+            chooseTrackFileButton.setDisable(false);
+            logTextArea.appendText('\n' + "Załadowano konfigurację: Domyślna v2b " +
+                    "- domalowane strefy! Wybierz plik trasy...");
         } else if (chosenConfiguration.equals("Domyślna v3")) {
             mapService.setMapParameters("v3");
             chooseTrackFileButton.setDisable(false);
@@ -101,6 +122,7 @@ public class Controller {
             System.out.println(map.getMapImage());
             mapFileNameTextField.setText(mapFileTmp.getName());
 
+            chooseTrackFileButton.setDisable(true);
             checkConfigurationCorrectnessButton.setDisable(false);
             logTextArea.appendText('\n' + "Wybrano plik mapy: " + mapFileTmp.getName());
             logTextArea.appendText('\n' + "Wprowadź współrzędne narożników mapy w formie dziesiętnej, np. 52.503133...");
@@ -143,6 +165,12 @@ public class Controller {
             correctnessOfForbiddenColors.setText("Obszary zabronione: OK");
             logTextArea.appendText('\n' + "Kolory mapy oraz format współrzędnych są poprawne. Wybierz plik trasy...");
             chooseTrackFileButton.setDisable(false);
+
+            System.out.println("Read custom config!");
+            System.out.println("Coordinates:");
+            System.out.println(map.getBottomLeftCornerLatitude() + ", " + map.getBottomLeftCornerLongitude());
+            System.out.println(map.getUpperRightCornerLatitude() + ", " + map.getUpperRightCornerLongitude());
+            System.out.println("---");
         } else {
             correctnessOfAllowedColors.setText("Obszary dozwolone: BŁĄD!");
             correctnessOfForbiddenColors.setText("Obszary zabronione: BŁĄD!");

@@ -17,9 +17,9 @@
 <?import javafx.scene.layout.HBox?>
 <?import javafx.scene.layout.VBox?>
 
-<BorderPane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="700.0" prefWidth="600.0" xmlns="http://javafx.com/javafx/8.0.171" xmlns:fx="http://javafx.com/fxml/1" fx:controller="controller.Controller">
+<BorderPane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="700.0" minWidth="600.0" prefHeight="700.0" prefWidth="600.0" xmlns="http://javafx.com/javafx/8.0.171" xmlns:fx="http://javafx.com/fxml/1" fx:controller="controller.Controller">
    <top>
-      <MenuBar BorderPane.alignment="CENTER">
+      <MenuBar maxHeight="25.0" minHeight="25.0" prefHeight="25.0" BorderPane.alignment="CENTER">
         <menus>
           <Menu mnemonicParsing="false" text="File">
             <items>
@@ -40,9 +40,9 @@
       </MenuBar>
    </top>
    <center>
-      <HBox prefHeight="100.0" prefWidth="600.0" BorderPane.alignment="CENTER">
+      <HBox maxHeight="203.0" minHeight="203.0" minWidth="600.0" prefHeight="203.0" prefWidth="600.0" BorderPane.alignment="CENTER">
          <children>
-            <VBox alignment="TOP_CENTER" prefHeight="375.0" prefWidth="264.0">
+            <VBox alignment="TOP_CENTER" minWidth="264.0" prefWidth="264.0">
                <children>
                   <Label text="Konfiguracja mapy">
                      <VBox.margin>
@@ -115,8 +115,8 @@
                   </Button>
                </children>
             </VBox>
-            <Separator orientation="VERTICAL" prefHeight="200.0" />
-            <VBox alignment="TOP_CENTER" prefHeight="375.0" prefWidth="150.0">
+            <Separator orientation="VERTICAL" />
+            <VBox alignment="TOP_CENTER" minWidth="150.0" prefWidth="150.0">
                <children>
                   <Label text="Poprawność mapy">
                      <VBox.margin>
@@ -139,8 +139,8 @@
                   </Button>
                </children>
             </VBox>
-            <Separator orientation="VERTICAL" prefHeight="200.0" />
-            <VBox alignment="TOP_CENTER" prefHeight="199.0" prefWidth="174.0">
+            <Separator orientation="VERTICAL" />
+            <VBox alignment="TOP_CENTER" minWidth="174.0" prefWidth="174.0">
                <children>
                   <Label text="Wczytaj konfigurację">
                      <VBox.margin>
@@ -151,6 +151,7 @@
                      <items>
                         <FXCollections fx:factory="observableArrayList">
                            <String fx:value="Domyślna v2" />
+                           <String fx:value="Domyślna v2b" />
                            <String fx:value="Domyślna v3" />
                         </FXCollections>
                      </items>
@@ -160,6 +161,11 @@
                         <Insets top="5.0" />
                      </VBox.margin>
                   </Button>
+                  <HBox alignment="CENTER" prefHeight="41.0" prefWidth="174.0">
+                     <VBox.margin>
+                        <Insets top="20.0" />
+                     </VBox.margin>
+                  </HBox>
                </children>
             </VBox>
          </children>
